@@ -115,68 +115,41 @@ class CardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
-      height: 150,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(() {
-            if (card.value == 1) return "A";
-            if (card.value > 10) {
-              switch (card.value) {
-                case 11:
-                  return "J";
-                case 12:
-                  return "Q";
-                case 13:
-                  return "K";
-              }
-            }
-            return card.value.toString();
-          }(), style: TextStyle(color: () {
-            switch (card.suit) {
-              case Suit.spades:
-                return Colors.black;
-              case Suit.hearts:
-                return Colors.red;
-              case Suit.diamonds:
-                return Colors.red;
-              case Suit.clubs:
-                return Colors.black;
-            }
-          }())),
-          Text(() {
-            switch (card.suit) {
-              case Suit.spades:
-                return "♠";
-              case Suit.hearts:
-                return "♥";
-              case Suit.diamonds:
-                return "♦";
-              case Suit.clubs:
-                return "♣";
-            }
-          }(), style: TextStyle(color: () {
-            switch (card.suit) {
-              case Suit.spades:
-                return Colors.black;
-              case Suit.hearts:
-                return Colors.red;
-              case Suit.diamonds:
-                return Colors.red;
-              case Suit.clubs:
-                return Colors.black;
-            }
-          }())),
-        ],
-      ),
-    );
+        width: 100,
+        height: 150,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: Stack(fit: StackFit.expand, children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(card.valueToString(), style: TextStyle(color: card.color)),
+              Text(card.suitToString(), style: TextStyle(color: card.color)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(card.valueToString(),
+                  style: TextStyle(color: card.color, fontSize: 30)),
+              Text(card.suitToString(),
+                  style: TextStyle(color: card.color, fontSize: 30)),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Text(card.valueToString(), style: TextStyle(color: card.color)),
+              Text(card.suitToString(), style: TextStyle(color: card.color)),
+            ],
+          )
+        ]));
   }
 }
 
