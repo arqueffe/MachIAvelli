@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+import 'model/game.dart';
+
 Future<void> main() async {
 // Ensure that plugin services are initialized so that `availableCameras()`
 // can be called before `runApp()`
@@ -46,29 +48,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<List<Card>> board = [];
-  final List<Card> hand = [];
+  final List<List<GameCard>> board = [];
+  final List<GameCard> hand = [];
 
   @override
   Widget build(BuildContext context) {
     // Test board and hand
     if (board.isEmpty) {
       board.add(const [
-        Card(suit: CardSuit.clubs, value: 1),
-        Card(suit: CardSuit.clubs, value: 2),
-        Card(suit: CardSuit.clubs, value: 3),
-        Card(suit: CardSuit.clubs, value: 4),
-        Card(suit: CardSuit.clubs, value: 5),
+        GameCard(suit: Suit.clubs, value: 1),
+        GameCard(suit: Suit.clubs, value: 2),
+        GameCard(suit: Suit.clubs, value: 3),
+        GameCard(suit: Suit.clubs, value: 4),
+        GameCard(suit: Suit.clubs, value: 5),
       ]);
       board.add(const [
-        Card(suit: CardSuit.diamonds, value: 7),
-        Card(suit: CardSuit.diamonds, value: 8),
-        Card(suit: CardSuit.diamonds, value: 9),
-        Card(suit: CardSuit.diamonds, value: 10),
-        Card(suit: CardSuit.diamonds, value: 11),
+        GameCard(suit: Suit.diamonds, value: 7),
+        GameCard(suit: Suit.diamonds, value: 8),
+        GameCard(suit: Suit.diamonds, value: 9),
+        GameCard(suit: Suit.diamonds, value: 10),
+        GameCard(suit: Suit.diamonds, value: 11),
       ]);
-      hand.add(const Card(suit: CardSuit.clubs, value: 1));
-      hand.add(const Card(suit: CardSuit.clubs, value: 2));
+      hand.add(const GameCard(suit: Suit.clubs, value: 1));
+      hand.add(const GameCard(suit: Suit.clubs, value: 2));
     }
     return Scaffold(
       body: Center(
@@ -105,17 +107,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-enum CardSuit { spades, hearts, diamonds, clubs }
-
-class Card {
-  final CardSuit suit;
-  final int value;
-
-  const Card({required this.suit, required this.value});
-}
-
 class CardWidget extends StatelessWidget {
-  final Card card;
+  final GameCard card;
 
   const CardWidget({super.key, required this.card});
 
@@ -148,36 +141,36 @@ class CardWidget extends StatelessWidget {
             return card.value.toString();
           }(), style: TextStyle(color: () {
             switch (card.suit) {
-              case CardSuit.spades:
+              case Suit.spades:
                 return Colors.black;
-              case CardSuit.hearts:
+              case Suit.hearts:
                 return Colors.red;
-              case CardSuit.diamonds:
+              case Suit.diamonds:
                 return Colors.red;
-              case CardSuit.clubs:
+              case Suit.clubs:
                 return Colors.black;
             }
           }())),
           Text(() {
             switch (card.suit) {
-              case CardSuit.spades:
+              case Suit.spades:
                 return "♠";
-              case CardSuit.hearts:
+              case Suit.hearts:
                 return "♥";
-              case CardSuit.diamonds:
+              case Suit.diamonds:
                 return "♦";
-              case CardSuit.clubs:
+              case Suit.clubs:
                 return "♣";
             }
           }(), style: TextStyle(color: () {
             switch (card.suit) {
-              case CardSuit.spades:
+              case Suit.spades:
                 return Colors.black;
-              case CardSuit.hearts:
+              case Suit.hearts:
                 return Colors.red;
-              case CardSuit.diamonds:
+              case Suit.diamonds:
                 return Colors.red;
-              case CardSuit.clubs:
+              case Suit.clubs:
                 return Colors.black;
             }
           }())),
@@ -188,7 +181,7 @@ class CardWidget extends StatelessWidget {
 }
 
 class BlockWidget extends StatelessWidget {
-  final List<Card> block;
+  final List<GameCard> block;
 
   const BlockWidget({super.key, required this.block});
 
