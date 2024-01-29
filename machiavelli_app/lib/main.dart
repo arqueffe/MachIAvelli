@@ -42,30 +42,55 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<List<GameCard>> board = [];
-  final List<GameCard> hand = [];
+  final GameBoard board = GameBoard();
+  final CardBlock hand = const CardBlock(cards: [
+    // A 'random' hand
+    GameCard(suit: Suit.hearts, value: 1),
+    GameCard(suit: Suit.spades, value: 1),
+    GameCard(suit: Suit.diamonds, value: 5),
+    GameCard(suit: Suit.clubs, value: 4),
+    GameCard(suit: Suit.hearts, value: 8),
+    GameCard(suit: Suit.spades, value: 10),
+    GameCard(suit: Suit.diamonds, value: 12),
+    GameCard(suit: Suit.clubs, value: 13),
+  ]);
+
+  @override
+  void initState() {
+    super.initState();
+    board.addBlock(
+      SeriesBlock(
+        cards: [
+          GameCard(suit: Suit.hearts, value: 1),
+          GameCard(suit: Suit.hearts, value: 2),
+          GameCard(suit: Suit.hearts, value: 3),
+        ],
+      ),
+    );
+    board.addBlock(
+      SquareBlock(
+        cards: [
+          GameCard(suit: Suit.hearts, value: 4),
+          GameCard(suit: Suit.diamonds, value: 4),
+          GameCard(suit: Suit.clubs, value: 4),
+          GameCard(suit: Suit.spades, value: 4),
+        ],
+      ),
+    );
+    board.addBlock(
+      SeriesBlock(
+        cards: [
+          GameCard(suit: Suit.spades, value: 5),
+          GameCard(suit: Suit.spades, value: 6),
+          GameCard(suit: Suit.spades, value: 7),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     // Test board and hand
-    if (board.isEmpty) {
-      board.add(const [
-        GameCard(suit: Suit.clubs, value: 1),
-        GameCard(suit: Suit.clubs, value: 2),
-        GameCard(suit: Suit.clubs, value: 3),
-        GameCard(suit: Suit.clubs, value: 4),
-        GameCard(suit: Suit.clubs, value: 5),
-      ]);
-      board.add(const [
-        GameCard(suit: Suit.diamonds, value: 7),
-        GameCard(suit: Suit.diamonds, value: 8),
-        GameCard(suit: Suit.diamonds, value: 9),
-        GameCard(suit: Suit.diamonds, value: 10),
-        GameCard(suit: Suit.diamonds, value: 11),
-      ]);
-      hand.add(const GameCard(suit: Suit.clubs, value: 1));
-      hand.add(const GameCard(suit: Suit.clubs, value: 2));
-    }
     return Scaffold(
       body: Center(
         child: Column(
@@ -75,8 +100,8 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                for (int i = 0; i < board.length; i++)
-                  BlockWidget(block: board[i]),
+                for (int i = 0; i < board.blocks.length; i++)
+                  BlockWidget(block: board.blocks[i]),
               ],
             ),
             TextButton(
@@ -147,21 +172,21 @@ class CardWidget extends StatelessWidget {
 }
 
 class BlockWidget extends StatelessWidget {
-  final List<GameCard> block;
-
+  final CardBlock block;
+  final double spacing = 15;
   const BlockWidget({super.key, required this.block});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 100 + (block.length - 1) * 10,
+      width: 100 + (block.length - 1) * spacing,
       height: 150,
       child: Stack(
         children: <Widget>[
           for (int i = 0; i < block.length; i++)
             Positioned(
-              left: i.toDouble() * 10,
-              child: CardWidget(card: block[i]),
+              left: i.toDouble() * spacing,
+              child: CardWidget(card: block.get(i)),
             ),
         ],
       ),

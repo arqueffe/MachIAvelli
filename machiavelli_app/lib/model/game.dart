@@ -47,3 +47,49 @@ class GameCard {
     }
   }
 }
+
+class CardBlock {
+  final List<GameCard> cards;
+
+  const CardBlock({required this.cards});
+
+  int get length => cards.length;
+
+  GameCard get(int index) => cards[index];
+}
+
+class SeriesBlock extends CardBlock {
+  const SeriesBlock({required super.cards});
+
+  bool canInsert(GameCard card) {
+    final lastCard = cards.last;
+    if (lastCard.suit != card.suit) {
+      return false;
+    }
+    return lastCard.value + 1 == card.value || lastCard.value - 1 == card.value;
+  }
+}
+
+class SquareBlock extends CardBlock {
+  const SquareBlock({required super.cards});
+
+  bool canInsert(GameCard card) {
+    if (cards.length == 4) {
+      return false;
+    }
+    if (cards.where((c) => c.suit == card.suit).isNotEmpty) {
+      return false;
+    }
+    return cards.first.value == card.value;
+  }
+}
+
+class GameBoard {
+  final List<CardBlock> blocks = [];
+
+  List<GameCard> get cards => blocks.expand((b) => b.cards).toList();
+
+  void addBlock(CardBlock block) {
+    blocks.add(block);
+  }
+}
