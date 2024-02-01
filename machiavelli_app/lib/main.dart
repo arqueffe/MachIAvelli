@@ -5,7 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import 'model/game.dart';
-import 'model/bruteforce.dart';
+import 'model/solver/bruteforce.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

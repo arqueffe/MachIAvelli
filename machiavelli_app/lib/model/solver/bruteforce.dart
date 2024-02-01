@@ -1,16 +1,12 @@
-import 'game.dart';
+import 'solver.dart';
+import '../game.dart';
 
-class BruteForce {
-  final GameBoard board;
-  final CardBlock hand;
+class BruteForce extends Solver {
   final Set<GameBoard> seenStates = {};
 
-  BruteForce({required this.board, required this.hand});
+  BruteForce({required super.board, required super.hand});
 
-  Future<List<GameBoard>> getMovesAsync() async {
-    return Future.value(getMoves());
-  }
-
+  @override
   List<GameBoard> getMoves() {
     List<GameCard> cards = [];
     for (var block in board.blocks) {
