@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import 'model/game.dart';
+import 'model/bruteforce.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,22 +45,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GameBoard board = GameBoard();
   final CardBlock hand = const CardBlock(cards: [
-    // A 'random' hand
-    GameCard(suit: Suit.hearts, value: 1),
-    GameCard(suit: Suit.spades, value: 1),
-    GameCard(suit: Suit.diamonds, value: 5),
-    GameCard(suit: Suit.clubs, value: 4),
-    GameCard(suit: Suit.hearts, value: 8),
-    GameCard(suit: Suit.spades, value: 10),
-    GameCard(suit: Suit.diamonds, value: 12),
-    GameCard(suit: Suit.clubs, value: 13),
+    GameCard(suit: Suit.hearts, value: 4),
   ]);
+  List<GameBoard> moves = [GameBoard()];
+  int _sliderValue = 0;
 
   @override
   void initState() {
     super.initState();
     board.addBlock(
-      SeriesBlock(
+      const SeriesBlock(
         cards: [
           GameCard(suit: Suit.hearts, value: 1),
           GameCard(suit: Suit.hearts, value: 2),
@@ -68,21 +63,11 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     board.addBlock(
-      SquareBlock(
+      const SquareBlock(
         cards: [
-          GameCard(suit: Suit.hearts, value: 4),
           GameCard(suit: Suit.diamonds, value: 4),
           GameCard(suit: Suit.clubs, value: 4),
           GameCard(suit: Suit.spades, value: 4),
-        ],
-      ),
-    );
-    board.addBlock(
-      SeriesBlock(
-        cards: [
-          GameCard(suit: Suit.spades, value: 5),
-          GameCard(suit: Suit.spades, value: 6),
-          GameCard(suit: Suit.spades, value: 7),
         ],
       ),
     );
@@ -118,6 +103,44 @@ class _HomePageState extends State<HomePage> {
             const Text("Hand"),
             BlockWidget(block: hand),
             TextButton(onPressed: () {}, child: const Text("Load Hand")),
+            const Text("Moves"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                for (int i = 0; i < moves[_sliderValue].blocks.length; i++)
+                  BlockWidget(block: moves[_sliderValue].blocks[i]),
+              ],
+            ),
+            Slider(
+              value: _sliderValue.toDouble(),
+              min: 0,
+              max: moves.length.toDouble() - 1.0,
+              divisions: moves.length,
+              label: _sliderValue.toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _sliderValue = value.toInt();
+                });
+              },
+            ),
+            TextButton(
+                onPressed: () async {
+                  BruteForce solver = BruteForce(board: board, hand: hand);
+                  List<GameBoard> resultMoves = await solver.getMovesAsync();
+                  if (resultMoves.isEmpty) {
+                    print("No moves found");
+                    return;
+                  }
+                  setState(() {
+                    moves = resultMoves;
+                  });
+                  print(resultMoves.length);
+                  for (var move in resultMoves) {
+                    print(move.cards.length);
+                    print(move.hashCode);
+                  }
+                },
+                child: const Text("Find Moves")),
           ],
         ),
       ),

@@ -56,11 +56,31 @@ class CardBlock {
   int get length => cards.length;
 
   GameCard get(int index) => cards[index];
+
+  bool canInsert(GameCard card) => true;
+  bool isValid() => true;
+  void insert(GameCard card) {
+    cards.add(card);
+  }
+
+  CardBlock clone() {
+    return CardBlock(cards: cards.toList());
+  }
+
+  @override
+  String toString() {
+    String str = "";
+    for (var card in cards) {
+      str += card.valueToString() + card.suitToString() + " ";
+    }
+    return str;
+  }
 }
 
 class SeriesBlock extends CardBlock {
   const SeriesBlock({required super.cards});
 
+  @override
   bool canInsert(GameCard card) {
     final lastCard = cards.last;
     if (lastCard.suit != card.suit) {
@@ -68,11 +88,46 @@ class SeriesBlock extends CardBlock {
     }
     return lastCard.value + 1 == card.value || lastCard.value - 1 == card.value;
   }
+
+  @override
+  bool isValid() {
+    if (cards.length < 3) {
+      return false;
+    }
+    final firstCardSuit = cards.first.suit;
+    for (var card in cards) {
+      if (card.suit != firstCardSuit) {
+        return false;
+      }
+    }
+    for (var i = 0; i < cards.length - 1; i++) {
+      final card = cards[i];
+      final nextCard = cards[i + 1];
+      if (card.value + 1 != nextCard.value) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void insert(GameCard card) {
+    if (card.value < cards.first.value) {
+      cards.insert(0, card);
+    } else {
+      cards.add(card);
+    }
+  }
+
+  @override
+  CardBlock clone() {
+    return SeriesBlock(cards: cards.toList());
+  }
 }
 
 class SquareBlock extends CardBlock {
   const SquareBlock({required super.cards});
 
+  @override
   bool canInsert(GameCard card) {
     if (cards.length == 4) {
       return false;
@@ -81,6 +136,26 @@ class SquareBlock extends CardBlock {
       return false;
     }
     return cards.first.value == card.value;
+  }
+
+  @override
+  bool isValid() {
+    if (cards.length < 3 || cards.length > 4) {
+      return false;
+    }
+    final firstCardValue = cards.first.value;
+    for (var card in cards) {
+      if (card.value != firstCardValue) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @override
+  CardBlock clone() {
+    return SquareBlock(cards: cards.toList());
   }
 }
 
@@ -91,5 +166,81 @@ class GameBoard {
 
   void addBlock(CardBlock block) {
     blocks.add(block);
+  }
+
+  bool isValid() {
+    for (var block in blocks) {
+      if (!block.isValid()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  get hashCode {
+    int hash = blocks.length * 1000000;
+    for (var block in blocks) {
+      hash += block.cards.length * 100000;
+      for (var card in block.cards) {
+        hash += card.suit.index * 100 + card.value;
+      }
+    }
+    return hash;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! GameBoard) {
+      return false;
+    }
+    if (blocks.length != other.blocks.length) {
+      return false;
+    }
+    List<int> used = [];
+    for (var i = 0; i < blocks.length; i++) {
+      bool found = false;
+      for (var j = 0; j < other.blocks.length; j++) {
+        if (used.contains(j)) {
+          continue;
+        }
+        if (blocks[i].cards.length != other.blocks[j].cards.length) {
+          continue;
+        }
+        bool equal = true;
+        for (var k = 0; k < blocks[i].cards.length; k++) {
+          if (!other.blocks[j].cards.contains(blocks[i].cards[k])) {
+            equal = false;
+            break;
+          }
+        }
+        if (equal) {
+          found = true;
+          used.add(j);
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  GameBoard clone() {
+    GameBoard newBoard = GameBoard();
+    for (var block in blocks) {
+      newBoard.addBlock(block.clone());
+    }
+    return newBoard;
+  }
+
+  @override
+  String toString() {
+    String str = "";
+    for (var block in blocks) {
+      str += block.toString() + "\n";
+    }
+    return str;
   }
 }
