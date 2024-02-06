@@ -46,6 +46,11 @@ class GameCard {
         return Colors.red;
     }
   }
+
+  @override
+  String toString() {
+    return valueToString() + suitToString();
+  }
 }
 
 class CardBlock {
@@ -69,11 +74,12 @@ class CardBlock {
 
   @override
   String toString() {
-    String str = "";
-    for (var card in cards) {
-      str += card.valueToString() + card.suitToString() + " ";
-    }
-    return str;
+    // Display the cards with comma separation
+    return "[${cards.map((c) => c.toString()).join(", ")}]";
+  }
+
+  int typeToInt() {
+    return -1;
   }
 }
 
@@ -122,6 +128,16 @@ class SeriesBlock extends CardBlock {
   CardBlock clone() {
     return SeriesBlock(cards: cards.toList());
   }
+
+  @override
+  String toString() {
+    return "Serie${super.toString()}";
+  }
+
+  @override
+  int typeToInt() {
+    return 1;
+  }
 }
 
 class SquareBlock extends CardBlock {
@@ -157,6 +173,16 @@ class SquareBlock extends CardBlock {
   CardBlock clone() {
     return SquareBlock(cards: cards.toList());
   }
+
+  @override
+  String toString() {
+    return "Square${super.toString()}";
+  }
+
+  @override
+  int typeToInt() {
+    return 2;
+  }
 }
 
 class GameBoard {
@@ -180,11 +206,13 @@ class GameBoard {
   @override
   get hashCode {
     int hash = blocks.length * 1000000;
+    int i = 0;
     for (var block in blocks) {
-      hash += block.cards.length * 100000;
+      hash += block.cards.length * i * 100000 * block.typeToInt();
       for (var card in block.cards) {
         hash += card.suit.index * 100 + card.value;
       }
+      i++;
     }
     return hash;
   }
@@ -205,6 +233,9 @@ class GameBoard {
           continue;
         }
         if (blocks[i].cards.length != other.blocks[j].cards.length) {
+          continue;
+        }
+        if (blocks[i].typeToInt() != other.blocks[j].typeToInt()) {
           continue;
         }
         bool equal = true;
@@ -237,10 +268,7 @@ class GameBoard {
 
   @override
   String toString() {
-    String str = "";
-    for (var block in blocks) {
-      str += block.toString() + "\n";
-    }
-    return str;
+    // Display the block with comma separation
+    return blocks.map((b) => b.toString()).join(", ");
   }
 }

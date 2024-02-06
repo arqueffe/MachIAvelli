@@ -40,13 +40,11 @@ class BruteForce extends Solver {
         }
       }
 
-      // if (seenStates.contains(currentBoard)) {
-      //   // print("Seen state");
-      //   return moves;
-      // } else {
-      //   // print("New state");
-      //   seenStates.add(currentBoard);
-      // }
+      if (seenStates.contains(currentBoard)) {
+        return moves;
+      } else {
+        seenStates.add(currentBoard);
+      }
       // Pick card to play
       for (var card in currentCards) {
         List<GameCard> newCards = currentCards.toList();

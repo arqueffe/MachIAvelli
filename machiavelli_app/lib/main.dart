@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:machiavelli_app/model/solver/astar.dart';
 
 import 'model/game.dart';
 import 'model/solver/bruteforce.dart';
+import 'model/solver/solver.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,8 +48,9 @@ class _HomePageState extends State<HomePage> {
   final GameBoard board = GameBoard();
   final CardBlock hand = const CardBlock(cards: [
     GameCard(suit: Suit.hearts, value: 4),
+    GameCard(suit: Suit.hearts, value: 5),
   ]);
-  List<GameBoard> moves = [GameBoard()];
+  List<GameBoard> moves = [];
   int _sliderValue = 0;
 
   @override
@@ -56,9 +59,9 @@ class _HomePageState extends State<HomePage> {
     board.addBlock(
       const SeriesBlock(
         cards: [
-          GameCard(suit: Suit.hearts, value: 1),
           GameCard(suit: Suit.hearts, value: 2),
           GameCard(suit: Suit.hearts, value: 3),
+          GameCard(suit: Suit.hearts, value: 4),
         ],
       ),
     );
@@ -103,42 +106,41 @@ class _HomePageState extends State<HomePage> {
             const Text("Hand"),
             BlockWidget(block: hand),
             TextButton(onPressed: () {}, child: const Text("Load Hand")),
-            const Text("Moves"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                for (int i = 0; i < moves[_sliderValue].blocks.length; i++)
-                  BlockWidget(block: moves[_sliderValue].blocks[i]),
-              ],
-            ),
-            Slider(
-              value: _sliderValue.toDouble(),
-              min: 0,
-              max: moves.length.toDouble() - 1.0,
-              divisions: moves.length,
-              label: _sliderValue.toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _sliderValue = value.toInt();
-                });
-              },
-            ),
+            if (moves.length == 1) const Text("Locally Optimal Move"),
+            if (moves.length > 1) const Text("Moves"),
+            if (moves.isNotEmpty)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  for (int i = 0; i < moves[_sliderValue].blocks.length; i++)
+                    BlockWidget(block: moves[_sliderValue].blocks[i]),
+                ],
+              ),
+            if (moves.length > 1) Text("Moves: ${moves.length}"),
+            if (moves.length > 1)
+              Slider(
+                value: _sliderValue.toDouble(),
+                min: 0,
+                max: moves.length.toDouble() - 1.0,
+                divisions: moves.length,
+                label: _sliderValue.toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    _sliderValue = value.toInt();
+                  });
+                },
+              ),
             TextButton(
                 onPressed: () async {
-                  BruteForce solver = BruteForce(board: board, hand: hand);
-                  List<GameBoard> resultMoves = await solver.getMovesAsync();
-                  if (resultMoves.isEmpty) {
-                    print("No moves found");
-                    return;
-                  }
-                  setState(() {
-                    moves = resultMoves;
-                  });
-                  print(resultMoves.length);
-                  for (var move in resultMoves) {
-                    print(move.cards.length);
-                    print(move.hashCode);
-                  }
+                  Solver solver = AStar(board: board, hand: hand);
+                  solver.getMovesAsync().then((resultMoves) => {
+                        if (resultMoves.isNotEmpty)
+                          {
+                            setState(() {
+                              moves = resultMoves;
+                            })
+                          }
+                      });
                 },
                 child: const Text("Find Moves")),
           ],
