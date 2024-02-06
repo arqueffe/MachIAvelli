@@ -8,19 +8,12 @@ import 'model/game.dart';
 import 'model/solver/solver.dart';
 import 'model/solver/astar.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
-
-  runApp(MachIAvelliApp(
-    camera: firstCamera,
-  ));
+void main() {
+  runApp(const MachIAvelliApp());
 }
 
 class MachIAvelliApp extends StatelessWidget {
-  final CameraDescription camera;
-  const MachIAvelliApp({super.key, required this.camera});
+  const MachIAvelliApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +23,13 @@ class MachIAvelliApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      home: HomePage(camera: camera),
+      home: const HomePage(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  final CameraDescription camera;
-  const HomePage({super.key, required this.camera});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -96,8 +88,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          TakePictureScreen(camera: widget.camera),
+                      builder: (context) => const TakePictureScreen(),
                     ),
                   );
                 },
@@ -221,10 +212,7 @@ class BlockWidget extends StatelessWidget {
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
     super.key,
-    required this.camera,
   });
-
-  final CameraDescription camera;
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -233,16 +221,39 @@ class TakePictureScreen extends StatefulWidget {
 class TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  CameraDescription? camera;
+  bool? _hasCamera;
 
   @override
   void initState() {
     super.initState();
-    _controller = CameraController(
-      widget.camera,
-      ResolutionPreset.medium,
-    );
-
-    _initializeControllerFuture = _controller.initialize();
+    WidgetsFlutterBinding.ensureInitialized();
+    availableCameras()
+        .then((cameras) => {
+              if (cameras.isEmpty)
+                {
+                  _hasCamera = false,
+                }
+              else
+                {
+                  _hasCamera = true,
+                  camera = cameras.first,
+                  _controller = CameraController(
+                    camera!,
+                    ResolutionPreset.medium,
+                  ),
+                  setState(() {
+                    _initializeControllerFuture = _controller.initialize();
+                  }),
+                }
+            })
+        .onError((error, stackTrace) => {
+              {
+                setState(() {
+                  _hasCamera = false;
+                })
+              }
+            });
   }
 
   @override
@@ -253,40 +264,56 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Take a picture')),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            await _initializeControllerFuture;
-            final image = await _controller.takePicture();
-            if (!mounted) return;
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(
-                  // Pass the automatically generated path to
-                  // the DisplayPictureScreen widget.
-                  imagePath: image.path,
+    if (_hasCamera == false) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Take a picture')),
+        body: const Center(
+          child: Text("No camera found"),
+        ),
+      );
+    } else if (camera == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Take a picture')),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Take a picture')),
+        body: FutureBuilder<void>(
+          future: _initializeControllerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return CameraPreview(_controller);
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            try {
+              await _initializeControllerFuture;
+              final image = await _controller.takePicture();
+              if (!mounted) return;
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DisplayPictureScreen(
+                    // Pass the automatically generated path to
+                    // the DisplayPictureScreen widget.
+                    imagePath: image.path,
+                  ),
                 ),
-              ),
-            );
-          } catch (e) {
-            print(e);
-          }
-        },
-        child: const Icon(Icons.camera_alt),
-      ),
-    );
+              );
+            } catch (e) {
+              print(e);
+            }
+          },
+          child: const Icon(Icons.camera_alt),
+        ),
+      );
+    }
   }
 }
 
