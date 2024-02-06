@@ -1,6 +1,7 @@
 import 'solver.dart';
 import '../game.dart';
 
+@Deprecated('Use AStar instead')
 class BruteForce extends Solver {
   final Set<GameBoard> seenStates = {};
 

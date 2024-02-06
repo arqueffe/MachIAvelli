@@ -3,11 +3,10 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:machiavelli_app/model/solver/astar.dart';
 
 import 'model/game.dart';
-import 'model/solver/bruteforce.dart';
 import 'model/solver/solver.dart';
+import 'model/solver/astar.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
