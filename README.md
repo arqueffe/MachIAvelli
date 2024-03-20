@@ -20,9 +20,9 @@ MachIAvelli is an application designed to assist players in optimizing their mov
 
 Please head over to https://github.com/arqueffe/MachIAvelli/tree/main/machiavelli_app for more information about it.
 
-## About the YOLOv7 model
+## About the YOLOv9 model
 
-Please head over to https://github.com/xoxor/yolov7_cards for more information about it.
+Please head over to https://github.com/arqueffe/yolov9_cards for more information about it.
 
 ## Contributing
 
