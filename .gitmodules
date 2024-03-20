@@ -1,0 +1,3 @@
+[submodule "yolov9_cards"]
+	path = yolov9_cards
+	url = git@github.com:arqueffe/yolov9_cards.git
